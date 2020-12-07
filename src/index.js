@@ -1,8 +1,12 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
 import Editor from 'for-editor'
-import m2c from "./utils/m2c"
-import "./index.css"
+import m2c from './utils/m2c'
+import './index.css'
+
+import ReactNotification, {store} from 'react-notifications-component'
+import 'react-notifications-component/dist/theme.css'
+
 
 class App extends Component {
     constructor() {
@@ -55,7 +59,7 @@ Content Cell  | Content Cell
         }
     }
 
-    handleChange (value) {
+    handleChange(value) {
         // let confluenceValue = m2c(value)
         // let confluenceValue = m2c(value).replace(/&/g, '&amp;').replace(/\n/g, '<br>').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         this.setState({
@@ -64,15 +68,28 @@ Content Cell  | Content Cell
         })
     }
 
-    copy () {
-        let content = document.getElementById("content")
+    copy() {
+        let content = document.getElementById('content')
         content.select()
         document.execCommand('Copy')
-        alert('复制成功')
+        console.log('复制成功')
+        store.addNotification({
+            title: '复制成功!',
+            message: '2秒后自动消失',
+            type: 'success',
+            insert: 'top',
+            container: 'top-right',
+            animationIn: ['animate__animated', 'animate__fadeIn'],
+            animationOut: ['animate__animated', 'animate__fadeOut'],
+            dismiss: {
+                duration: 2000,
+                onScreen: true
+            }
+        })
     }
 
-    save () {
-        let blob = new Blob([this.state.value], { type: 'text/html' })
+    save() {
+        let blob = new Blob([this.state.value], {type: 'text/html'})
         let url = URL.createObjectURL(blob)
         let a = document.createElement('a')
         a.href = url
@@ -82,11 +99,19 @@ Content Cell  | Content Cell
         document.body.removeChild(a)
     }
 
-    render () {
-        const { value, confluenceValue } = this.state
+    render() {
+        const {value, confluenceValue} = this.state
         return (
             <div className="wrapper">
-                <Editor className="markdown-editor" lineNum={true} value={value} onChange={this.handleChange.bind(this)} onSave={this.save.bind(this)} />
+                <ReactNotification/>
+
+                <Editor className="markdown-editor"
+                        subfield={true}
+                        preview={true}
+                        lineNum={true}
+                        value={value}
+                        onChange={this.handleChange.bind(this)}
+                        onSave={this.save.bind(this)}/>
                 <div className="confluence-editor">
                     <button className="copy-btn" onClick={this.copy.bind(this)}>Copy</button>
                     <textarea readOnly id="content" className="content" value={confluenceValue}></textarea>
@@ -97,6 +122,6 @@ Content Cell  | Content Cell
 }
 
 ReactDOM.render(
-    <App />,
+    <App/>,
     document.getElementById('root')
 )
