@@ -72,7 +72,6 @@ Content Cell  | Content Cell
         let content = document.getElementById('content')
         content.select()
         document.execCommand('Copy')
-        console.log('复制成功')
         store.addNotification({
             title: '复制成功!',
             message: '2秒后自动消失',

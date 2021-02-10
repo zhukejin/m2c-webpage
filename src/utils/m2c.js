@@ -1,7 +1,7 @@
-var marked = require('marked')
-var _ = require('min-util')
-var qs = require('min-qs')
-var inlineLexer = marked.inlineLexer
+let marked = require('marked')
+let _ = require('min-util')
+let qs = require('min-qs')
+let inlineLexer = marked.inlineLexer
 
 // module.exports = exports = markdown2confluence
 
@@ -9,39 +9,45 @@ var inlineLexer = marked.inlineLexer
 // https://confluence.atlassian.com/display/DOC/Confluence+Wiki+Markup
 // http://blogs.atlassian.com/2011/11/why-we-removed-wiki-markup-editor-in-confluence-4/
 
-var MAX_CODE_LINE = 20
+let MAX_CODE_LINE = 20
 
 function Renderer () { }
 
-var rawRenderer = marked.Renderer
+let rawRenderer = marked.Renderer
 
-var langArr = 'actionscript3 bash csharp coldfusion cpp css delphi diff erlang groovy java javafx javascript perl php none powershell python ruby scala sql vb html/xml'.split(/\s+/)
-var langMap = {
+let langArr = 'actionscript3 bash csharp coldfusion cpp css delphi diff erlang groovy java javafx javascript perl php none powershell python ruby scala sql vb html/xml'.split(/\s+/)
+let langMap = {
 	shell: 'bash',
 	html: 'html',
 	xml: 'xml'
 }
-for (var i = 0, x; x = langArr[i++];) {
+for (let i = 0, x; x = langArr[i++];) {
 	langMap[x] = x
 }
 
 _.extend(Renderer.prototype, rawRenderer.prototype, {
 	paragraph: function (text) {
 		return text + '\n\n'
-	}
-	, html: function (html) {
+	},
+
+	html: function (html) {
 		return html
-	}
-	, heading: function (text, level, raw) {
+	},
+
+	heading: function (text, level, raw) {
 		return 'h' + level + '. ' + text + '\n\n'
-	}
-	, strong: function (text) {
+	},
+
+	strong: function (text) {
+		console.log(text)
 		return '*' + text + '*'
-	}
-	, em: function (text) {
+	},
+
+	em: function (text) {
 		return '_' + text + '_'
-	}
-	, del: function (text) {
+	},
+
+	del: function (text) {
 		return '-' + text + '-'
 	}
 	, codespan: function (text) {
@@ -57,17 +63,18 @@ _.extend(Renderer.prototype, rawRenderer.prototype, {
 		return '----'
 	}
 	, link: function (href, title, text) {
-		var arr = [href]
+		let arr = [href]
 		if (text) {
 			arr.unshift(text)
 		}
 		return '[' + arr.join('|') + ']'
 	}
 	, list: function (body, ordered) {
-		var arr = _.filter(_.trim(body).split('\n'), function (line) {
+		let arr = _.filter(_.trim(body).split('\n'), function (line) {
 			return line
 		})
-		var type = ordered ? '#' : '*'
+		let type = ordered ? '#' : '*'
+		console.log(arr)
 		return _.map(arr, function (line) {
 			return type + ' ' + line
 		}).join('\n') + '\n\n'
@@ -86,7 +93,7 @@ _.extend(Renderer.prototype, rawRenderer.prototype, {
 		return content + '\n'
 	}
 	, tablecell: function (content, flags) {
-		var type = flags.header ? '||' : '|'
+		let type = flags.header ? '||' : '|'
 		return type + content
 	}
 	, code: function (code, lang) {
@@ -95,14 +102,14 @@ _.extend(Renderer.prototype, rawRenderer.prototype, {
 			lang = lang.toLowerCase()
 		}
 		lang = langMap[lang] || 'none'
-		var param = {
+		let param = {
 			language: lang,
 			borderStyle: 'solid',
 			theme: 'RDark', // dark is good
 			linenumbers: true,
 			collapse: false
 		}
-		var lineCount = _.split(code, '\n').length
+		let lineCount = _.split(code, '\n').length
 		if (lineCount > MAX_CODE_LINE) {
 			// code is too long
 			param.collapse = true
@@ -112,7 +119,7 @@ _.extend(Renderer.prototype, rawRenderer.prototype, {
 	}
 })
 
-var renderer = new Renderer()
+let renderer = new Renderer()
 
 function markdown2confluence (markdown) {
 	return marked(markdown, { renderer: renderer })
